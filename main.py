@@ -6,8 +6,8 @@ if (machineOs == 'Linux'):
 from PyQt5.QtWidgets import QApplication, QMainWindow, QWidget, QTextEdit, QPushButton
 from PyQt5 import uic
 from PyQt5.QtCore import QThread, pyqtSlot, QObject, pyqtSignal
+from PyQt5 import QtTest
 
-from time import sleep
 import os, sys, pyowm, glob, requests, datetime, json
 try:
     import RPi.GPIO as GPIO # Import Raspberry Pi GPIO library
@@ -104,7 +104,7 @@ class WaterProbeDriver():
             valid, temp = self.read_temp_raw()
 
             while 'YES' not in valid:
-                sleep(1)
+                QtTest.QTest.qWait(1000)
                 valid, temp = self.read_temp_raw()
 
             pos = temp.index('t=')
@@ -137,7 +137,7 @@ class GetDateAndTimeThreaded(QObject):
             date = now.strftime("%I:%M:%S %p")
             self.signal_to_emit.emit('timeLabel', str(date))
 
-            sleep(1)
+            QtTest.QTest.qWait(1000)
 
 class dbConnector():
     def getDBInfo(self, index):
@@ -171,7 +171,7 @@ class dbConnector():
         for x in configDriver().getConfig(key='emailList', filename='config.json'):
             dbConnector().updateDBInfo(url='https://www.quackyos.com/PoolBuddyWeb/scripts/sendmail.php', pload={'address': x,'message':message})
             print(x)
-            sleep(5)
+            QtTest.QTest.qWait(5000)
 
 class CheckTempsThreaded(QObject):
     def __init__(self, signal_to_emit, parent=None):
@@ -188,7 +188,7 @@ class CheckTempsThreaded(QObject):
             # GET MAX TEMP AND SET TEXT BOX
             self.signal_to_emit.emit('maxTempTxtBox', str(dbConnector().getDBInfo(index=3)))
             self.signal_to_emit.emit('statusLabel', str(dbConnector().getDBInfo(index=2)))
-            sleep(10)
+            QtTest.QTest.qWait(10000)
 
     def getOutsideTemp(self):
         global globalUsername
@@ -265,12 +265,12 @@ class hardwareDriverThreaded(QObject):
 
             if button == False:
                 led = GPIO.output(17, GPIO.HIGH)
-                sleep(3)
+                QtTest.QTest.qWait(3000)
                 led = GPIO.output(17, GPIO.LOW)
                 self.signal_to_emit.emit('statusLabel', 'ACTIVE')
                 dbConnector().updateDBInfo(url='https://www.quackyos.com/PoolBuddyWeb/scripts/updateSwitch.php', pload={'pyUser':globalUsername, 'pyPass':globalPassword, 'serielNum': globalSerielNum, 'switch':'ACTIVE'})
         except Exception as e:
-            sleep(1)
+            QtTest.QTest.qWait(1000)
             configDriver().prRed("Switch ERROR: " + str(e))
             pass
 
