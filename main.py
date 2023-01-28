@@ -1,4 +1,5 @@
 import platform, subprocess
+import string
 import random
 machineOs = platform.system()
 if (machineOs == 'Linux'):
@@ -14,58 +15,48 @@ try:
     GPIO.setmode(GPIO.BCM)
     GPIO.setup(27, GPIO.IN, pull_up_down=GPIO.PUD_UP)
     GPIO.setup(17, GPIO.OUT)
-except ImportError:
-    pass
+except ImportError as e:
+    print(e)
 globalUsername = ''
 globalPassword = ''
-globalSerielNum = ''
 dir_path = os.path.dirname(os.path.realpath(__file__))
 
 class configDriver():
-    def getConfig(self, key=None, item=None, filename=None):
-        output = []
-        # Open JSON file
-        f = open(dir_path+'/'+filename)
-        data = json.load(f)
-        
-        if key == '':
+    def getConfig(self, filename):
+        try:
+            # Open JSON file
+            f = open(filename)
+            data = json.load(f)
+            
             return data
-        elif item == '' or item == None:
-            return data[key]
-        else:
-            for i in data[key]:
-                output.append(i[item])
-            return output
+        except:
+            return False
+
+    def createFile(self, filename):
+        if not os.path.isfile(filename):
+            with open(filename, 'w') as file:
+                self.prGreen(f"{file} Has Been Created!")
+                file.close()
 
     def prRed(self, skk): print("\033[91m{}\033[00m" .format(skk))
     def prGreen(self, skk): print("\033[92m{}\033[00m" .format(skk))
     def prYellow(self, skk): print("\033[93m{}\033[00m" .format(skk))
 
     def generateSerielNum(self,username,password):
-        serielNumFile = 'serielNum.json'
-
+        serielNumFile = dir_path+'/serielNum.json'
         # Create Seriel Number File
-        if not os.path.isfile(serielNumFile):
+        self.createFile(filename=serielNumFile)
+        try:
+            retrivedSerielNum=self.getConfig(filename=serielNumFile)["deviceInfo"][0]["serielNum"]
+        except TypeError:
+            retrivedSerielNum=""
+        if (retrivedSerielNum == ""):
             configDriver().prYellow('Making Seriel Number...')
             with open(serielNumFile, 'w') as outfile:
-                # Create Seriel Number
-                x=0
-                finalSeriel = []
-                while x < 30:
-                    x += 1
-                    # printing letters
-                    letters = string.ascii_letters
-                    randomLetterString = ''.join(random.choice(letters) for i in range(1))
-
-                    # printing digits
-                    digits = string.digits
-                    randomDigits = ''.join(random.choice(digits) for i in range(1))
-                    o = random.randrange(0,4)
-                    if (o == 0 or o == 2):
-                        finalSeriel.append(randomLetterString)
-                    else:
-                        finalSeriel.append(randomDigits)
-                serielNum = ''.join(finalSeriel)
+                def randStr(chars = string.ascii_uppercase + string.digits, N=30):
+                    return ''.join(random.choice(chars) for _ in range(N))
+                serielNum = randStr()
+                print(serielNum)
 
                 # Send Seriel Number
                 dbConnector().updateDBInfo(url='https://www.quackyos.com/PoolBuddyWeb/scripts/createSerielNumEntry.php', pload={'pyUser':username, 'pyPass':password, 'serielNum':serielNum})
@@ -104,7 +95,6 @@ class WaterProbeDriver():
             valid, temp = self.read_temp_raw()
 
             while 'YES' not in valid:
-                QtTest.QTest.qWait(1000)
                 valid, temp = self.read_temp_raw()
 
             pos = temp.index('t=')
@@ -143,12 +133,12 @@ class dbConnector():
     def getDBInfo(self, index):
         global globalUsername
         global globalPassword
-        global globalSerielNum
+        serielNum = str(configDriver().getConfig(filename=dir_path+'/serielNum.json')["deviceInfo"][0]["serielNum"])
         try:
             headers = {
                 'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10.12; rv:55.0) Gecko/20100101 Firefox/55.0',
             }
-            r = requests.post('https://www.quackyos.com/PoolBuddyWeb/scripts/getTemps.php', headers=headers, data={'pyUser':globalUsername, 'pyPass':globalPassword, 'serielNum': globalSerielNum})
+            r = requests.post('https://www.quackyos.com/PoolBuddyWeb/scripts/getTemps.php', headers=headers, data={'pyUser':globalUsername, 'pyPass':globalPassword, 'serielNum': serielNum})
             jsonResponse = r.json()
             return jsonResponse[index]
         except Exception as e:
@@ -168,10 +158,9 @@ class dbConnector():
             pass
 
     def sendEmail(self,message):
-        for x in configDriver().getConfig(key='emailList', filename='config.json'):
+        for x in configDriver().getConfig(filename=dir_path+'/config.json')["emailList"]:
             dbConnector().updateDBInfo(url='https://www.quackyos.com/PoolBuddyWeb/scripts/sendmail.php', pload={'address': x,'message':message})
             print(x)
-            QtTest.QTest.qWait(5000)
 
 class CheckTempsThreaded(QObject):
     def __init__(self, signal_to_emit, parent=None):
@@ -184,18 +173,20 @@ class CheckTempsThreaded(QObject):
         self.signal_to_emit.emit('statusLabel', '...')
         while True:
             self.signal_to_emit.emit('outsideTempLabel', str(self.getOutsideTemp()))
+            QtTest.QTest.qWait(2000)
             self.waterTemp()
             # GET MAX TEMP AND SET TEXT BOX
             self.signal_to_emit.emit('maxTempTxtBox', str(dbConnector().getDBInfo(index=3)))
             self.signal_to_emit.emit('statusLabel', str(dbConnector().getDBInfo(index=2)))
-            QtTest.QTest.qWait(10000)
+            QtTest.QTest.qWait(100000)
 
     def getOutsideTemp(self):
         global globalUsername
         global globalPassword
-        global globalSerielNum
+        serielNum = str(configDriver().getConfig(filename=dir_path+'/serielNum.json')["deviceInfo"][0]["serielNum"])
+        apiKey=configDriver().getConfig(filename=dir_path+'/config.json')["owmApiKey"]
         try:
-            owm = pyowm.OWM('') # TODO: Replace <api_key> with your API key
+            owm = pyowm.OWM(apiKey) # TODO: Replace <api_key> with your API key
             owmMgr = owm.weather_manager()
 
             arizona = owmMgr.weather_at_place('Tucson, US')
@@ -206,7 +197,7 @@ class CheckTempsThreaded(QObject):
             now = datetime.datetime.now()
             lastUpdated = now.strftime("%H:%M:%S")
             print('Outside Last Updated...' + str(lastUpdated))
-            dbConnector().updateDBInfo(url='https://www.quackyos.com/PoolBuddyWeb/scripts/updateTemp.php', pload={'pyUser':globalUsername, 'pyPass':globalPassword, 'serielNum': globalSerielNum, 'loc':'outside','temp':str(outside)})
+            dbConnector().updateDBInfo(url='https://www.quackyos.com/PoolBuddyWeb/scripts/updateTemp.php', pload={'pyUser':globalUsername, 'pyPass':globalPassword, 'serielNum': serielNum, 'loc':'outside','temp':str(outside)})
             return outside
         except Exception as e:
             configDriver().prRed("Get Outside Error: " + str(e))
@@ -215,7 +206,7 @@ class CheckTempsThreaded(QObject):
     def waterTemp(self):
         global globalUsername
         global globalPassword
-        global globalSerielNum
+        serielNum = str(configDriver().getConfig(filename=dir_path+'/serielNum.json')["deviceInfo"][0]["serielNum"])
 
         try:
             c, f = WaterProbeDriver().read_temp()
@@ -231,7 +222,7 @@ class CheckTempsThreaded(QObject):
                 msg = "Take off the damn pool cover the water temperature is " + str(round(water,1)) + "F" + " The outside temperature is " + str(self.getOutsideTemp()) + "F"
                 dbConnector().sendEmail(msg)
                 self.signal_to_emit.emit('statusLabel', 'DISABLED')
-                dbConnector().updateDBInfo(url='https://www.quackyos.com/PoolBuddyWeb/scripts/updateSwitch.php', pload={'pyUser':globalUsername, 'pyPass':globalPassword, 'serielNum': globalSerielNum, 'switch':'DISABLED'})
+                dbConnector().updateDBInfo(url='https://www.quackyos.com/PoolBuddyWeb/scripts/updateSwitch.php', pload={'pyUser':globalUsername, 'pyPass':globalPassword, 'serielNum': serielNum, 'switch':'DISABLED'})
 
             waterTemp = round(water, 1)
 
@@ -241,7 +232,7 @@ class CheckTempsThreaded(QObject):
             print('Water Last Updated...' + str(waterTempLastUpdated) + " " + str(waterTemp))
 
             self.signal_to_emit.emit('waterTempLabel', str(waterTemp))
-            dbConnector().updateDBInfo(url='https://www.quackyos.com/PoolBuddyWeb/scripts/updateTemp.php', pload={'pyUser':globalUsername, 'pyPass':globalPassword, 'serielNum': globalSerielNum, 'loc':'water','temp':str(waterTemp)})
+            dbConnector().updateDBInfo(url='https://www.quackyos.com/PoolBuddyWeb/scripts/updateTemp.php', pload={'pyUser':globalUsername, 'pyPass':globalPassword, 'serielNum': serielNum, 'loc':'water','temp':str(waterTemp)})
         except Exception as e:
             configDriver().prRed('Get Water Temp Error: ' + str(e))
             pass
@@ -260,6 +251,9 @@ class hardwareDriverThreaded(QObject):
                 print('Hardware Error: ' + str(e))
 
     def switch(self):
+        global globalUsername
+        global globalPassword
+        serielNum = str(configDriver().getConfig(filename=dir_path+'/serielNum.json')["deviceInfo"][0]["serielNum"])
         try:
             button = GPIO.input(27)
 
@@ -268,7 +262,7 @@ class hardwareDriverThreaded(QObject):
                 QtTest.QTest.qWait(3000)
                 led = GPIO.output(17, GPIO.LOW)
                 self.signal_to_emit.emit('statusLabel', 'ACTIVE')
-                dbConnector().updateDBInfo(url='https://www.quackyos.com/PoolBuddyWeb/scripts/updateSwitch.php', pload={'pyUser':globalUsername, 'pyPass':globalPassword, 'serielNum': globalSerielNum, 'switch':'ACTIVE'})
+                dbConnector().updateDBInfo(url='https://www.quackyos.com/PoolBuddyWeb/scripts/updateSwitch.php', pload={'pyUser':globalUsername, 'pyPass':globalPassword, 'serielNum': serielNum, 'switch':'ACTIVE'})
         except Exception as e:
             QtTest.QTest.qWait(1000)
             configDriver().prRed("Switch ERROR: " + str(e))
@@ -280,7 +274,6 @@ class poolbuddyOS(QMainWindow):
     def __init__(self, parent=None):
         global globalUsername
         global globalPassword
-        global globalSerielNum
         super().__init__()
         self.w = None  # No external window yet.
         uic.loadUi(dir_path+'/PoolBuddyV2.ui', self)
@@ -299,12 +292,12 @@ class poolbuddyOS(QMainWindow):
         hardwareThread = QThread(self)
         self.hardwareUpdate.moveToThread(hardwareThread)
         hardwareThread.start()
-        globalSerielNum = str(configDriver().getConfig(key='deviceInfo', item='serielNum',filename='serielNum.json')).replace("'",'').replace("'",'').replace('[','').replace(']','')
-        self.serielNumLabel.setText('Seriel: ' + str(configDriver().getConfig(key='deviceInfo', item='serielNum', filename='serielNum.json')).replace("'",'').replace("'",'').replace('[','').replace(']',''))
+        serielNum = str(configDriver().getConfig(filename=dir_path+'/serielNum.json')["deviceInfo"][0]["serielNum"])
+        self.serielNumLabel.setText('Seriel: ' + str(serielNum))
         self.startStopBtn.clicked.connect(self.tempsThreaded.executeThread)
         self.startStopBtn.clicked.connect(self.dateTimeUpdate.executeThread)
         self.startStopBtn.clicked.connect(self.hardwareUpdate.executeThread)
-        self.setMaxTempBtn.clicked.connect(lambda: dbConnector().updateDBInfo(url='https://www.quackyos.com/PoolBuddyWeb/scripts/updateMaxTemp.php', pload={'pyUser':globalUsername, 'pyPass':globalPassword, 'serielNum':globalSerielNum, 'waterTempMax':str(self.maxTempTxtBox.text())}))
+        self.setMaxTempBtn.clicked.connect(lambda: dbConnector().updateDBInfo(url='https://www.quackyos.com/PoolBuddyWeb/scripts/updateMaxTemp.php', pload={'pyUser':globalUsername, 'pyPass':globalPassword, 'serielNum':serielNum, 'waterTempMax':str(self.maxTempTxtBox.text())}))
         self.tempThreadSig.connect(self.updateGUI)
     
     @pyqtSlot(str,str)
@@ -328,7 +321,6 @@ class loginPage(QMainWindow):
             globalUsername = username
             globalPassword = password
             configDriver().generateSerielNum(username=username, password=password)
-            print(configDriver().getConfig(key='deviceInfo',item='serielNum', filename='serielNum.json'))
             self.openWindow(poolbuddyOS)
 
     def openWindow(self, window):
