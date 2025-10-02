@@ -1,0 +1,5 @@
+pyowm
+PyQt5
+setuptools
+requests
+RPi.GPIO

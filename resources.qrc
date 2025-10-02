@@ -1,0 +1,17 @@
+<RCC>
+  <qresource prefix="/img">
+    <file>img/lock.png</file>
+    <file>img/unlock.png</file>
+    <file>img/alarm.png</file>
+    <file>img/storm.png</file>
+    <file>img/poolCover.png</file>
+    <file>img/poolFilter.png</file>
+    <file>img/wind.png</file>
+    <file>img/gear.png</file>
+    <file>img/poolFilter.png</file>
+    <file>img/water-drop.png</file>
+    <file>img/wave.png</file>
+    <file>img/sun.webp</file>
+    <file>img/water.png</file>
+  </qresource>
+</RCC>
