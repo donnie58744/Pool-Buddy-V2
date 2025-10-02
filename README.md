@@ -63,7 +63,7 @@ A Python app that runs on Raspberry Pi, monitoring pool temperature, outside tem
 
     - Click the gear gog on from the main screen
 
-    <img src="/Users/donovanwhysong/Documents/GitHub/Pool-Buddy-V2/img/settings.png" alt="settings" height="400"/>
+    <img src="img/settings.png" alt="settings" height="400"/>
 
 ### Run
 
