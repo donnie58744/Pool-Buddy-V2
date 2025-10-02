@@ -1,6 +1,6 @@
 # <img src="img/icon.png" alt="icon" height="100" /> Poolbuddy V2
 
-A Python app that runs on Raspberry Pi, monitoring pool temperature, outside temperature and other weather data.
+*A Python app that runs on Raspberry Pi, monitoring pool temperature, outside temperature and other weather data.*
 
 <img src="img/main.png" alt="ImageOfApp" height="400" />
 
