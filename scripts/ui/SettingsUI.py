@@ -1,4 +1,5 @@
-from scripts.ConfigDriver import *
+from pool_buddy import DEFAULT
+from pool_buddy import ConfigDriver
 from scripts.Web import dbCredentials
 from PyQt5 import uic
 from PyQt5 import QtTest

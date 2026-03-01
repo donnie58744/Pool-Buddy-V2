@@ -1,6 +1,6 @@
-from scripts import DEFAULT
-from scripts.ConfigDriver import ConfigDriver
-from scripts.CustomTerminal import PrintColor
+from pool_buddy import DEFAULT
+from pool_buddy import ConfigDriver
+from pool_buddy.CustomTerminal import PrintColor
 import glob
 class WaterProbeDriver():
     def __init__(self):

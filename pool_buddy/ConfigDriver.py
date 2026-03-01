@@ -1,6 +1,6 @@
-from scripts import DEFAULT
+from pool_buddy import DEFAULT
 from scripts import Web
-from scripts.CustomTerminal import PrintColor
+from pool_buddy.CustomTerminal import PrintColor
 import json, random, string, os
 class ConfigDriver():
     def __init__(self, jsonFile):

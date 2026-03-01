@@ -1,7 +1,7 @@
-from scripts import DEFAULT
-from scripts.ConfigDriver import ConfigDriver
-from scripts.CustomTerminal import PrintColor
-from scripts.WaterProbeDriver import WaterProbeDriver
+from pool_buddy import DEFAULT
+from pool_buddy import ConfigDriver
+from pool_buddy.CustomTerminal import PrintColor
+from pool_buddy import WaterProbeDriver
 import pyowm
 import datetime
 

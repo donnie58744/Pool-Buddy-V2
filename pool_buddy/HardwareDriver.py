@@ -1,6 +1,6 @@
-from scripts import DEFAULT
-from scripts.CustomTerminal import PrintColor
-from scripts.ConfigDriver import ConfigDriver
+from pool_buddy import DEFAULT
+from pool_buddy.CustomTerminal import PrintColor
+from pool_buddy import ConfigDriver
 from time import sleep
 
 try:

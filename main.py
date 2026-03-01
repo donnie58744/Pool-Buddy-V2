@@ -2,9 +2,9 @@
 import os,sys
 os.system("pip install -r requirements.txt")
 # Import custom scripts
-from scripts import DEFAULT
+from pool_buddy import DEFAULT
 from scripts.ui.LoginPageUI import *
-from scripts.CustomTerminal import PrintColor
+from pool_buddy.CustomTerminal import PrintColor
 
 import platform, subprocess
 machineOs = platform.system()

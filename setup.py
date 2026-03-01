@@ -10,6 +10,8 @@ setup(
     packages=find_packages(),
     install_requires=[
         "pyowm",
+        "requests",
+        "RPi.GPIO",
     ],
     python_requires=">=3.12",
 )
