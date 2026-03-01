@@ -20,7 +20,7 @@ class LoginPageUI(QMainWindow):
         password = self.passwordTxtBox.text()
         dbLogin = dbCredentials(username=username,password=password)
         db = dbConnector(dbLogin)
-        if(db.update(url='https://www.quackyos.com/PoolBuddyWeb/scripts/login.php', pload={}) == 'true'):
+        checkLogin = db.update(url='https://www.quackyos.com/PoolBuddyWeb/scripts/login.php', pload={})
+        if(checkLogin == 'true'):
             self.serielNumConfig.generateSerielNum(username=username, password=password)
-            dbLogin = dbCredentials(username=username, password=password)
             guiFunctions.openWindow(self, PoolbuddyOSui(dbLogin, root_dir=self.dir_path), True)

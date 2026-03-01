@@ -1,14 +1,81 @@
 from scripts.Web import dbCredentials,dbConnector
 from scripts.ConfigDriver import ConfigDriver
 from scripts.GetDateTimeThreaded import GetDateTimeThreaded
-from scripts.SensorAndWeatherThreaded import SensorAndWeatherThreaded
-from scripts.HardwareDriverThreaded import HardwareDriverThreaded
+from pool_buddy import SensorAndWeather
+from pool_buddy import HardwareDriver
 from scripts.ui.guiFunctions import guiFunctions
 from scripts.ui.SettingsUI import SettingsUI
+from scripts.Web import *
 
 from PyQt5 import uic
 from PyQt5.QtCore import QThread, pyqtSlot, pyqtSignal
 from PyQt5.QtWidgets import QMainWindow
+from PyQt5.QtCore import pyqtSlot, QObject
+from PyQt5 import QtTest
+
+
+class HardwareDriverThread(QObject):
+    def __init__(self, signal_to_emit, dbLogin:dbCredentials, serielNum, parent=None):
+        super().__init__(parent)
+        self.signal_to_emit = signal_to_emit
+        self.running = True
+        self.hardware_driver = HardwareDriver()
+        self.db = dbConnector(login=dbLogin)
+        self.serielNum = serielNum
+
+    @pyqtSlot()
+    def executeThread(self):
+        while self.running:
+            if (self.hardware_driver.switch()):
+                self.signal_to_emit.emit('poolCoverStatusLabel', 'ACTIVE')
+                self.db.update(url='https://www.quackyos.com/PoolBuddyWeb/scripts/updateSwitch.php', pload={'serielNum': self.serielNum, 'switch':'ACTIVE'})
+            QtTest.QTest.qWait(500)
+
+class SensorAndWeatherThread(QObject):
+    def __init__(self, signal_to_emit, dbLogin:dbCredentials, serielNum, parent=None):
+        self.dbLogin = dbLogin
+        self.db = dbConnector(dbLogin)
+        self.serielNum = serielNum
+        self.sensor_weather = SensorAndWeather()
+        super().__init__(parent)
+        self.signal_to_emit = signal_to_emit
+        self.running = True
+
+    @pyqtSlot()
+    def executeThread(self):
+        try:
+            self.signal_to_emit.emit('maxTempTxtBox', '...')
+            self.signal_to_emit.emit('poolCoverStatusLabel', '...')
+            while self.running:
+                weather = self.sensor_weather.getWeather()
+                waterTemp = self.sensor_weather.waterTemp()
+
+                if (weather):
+                    self.signal_to_emit.emit('outsideTempLabel', str(weather["outside"]))
+
+                switch = self.db.get(index=2,serielNum=self.serielNum)
+
+                if (waterTemp != None):
+                    if waterTemp > float(self.db.get(index=3, serielNum=self.serielNum)) and switch == "ACTIVE":
+                        msg = "Take off the damn pool cover the water temperature is " + str(waterTemp) + "F" + " The outside temperature is " + str(self.sensor_weather.getWeather()["outside"]) + "F"
+                        Email().send(msg,[])
+                        self.signal_to_emit.emit('poolCoverStatusLabel', 'DISABLED')
+                        self.db.update(url='https://www.quackyos.com/PoolBuddyWeb/scripts/updateSwitch.php', pload={'serielNum': self.serielNum, 'switch':'DISABLED'})
+
+                self.signal_to_emit.emit('waterTempLabel', str(waterTemp))
+                self.db.update(url='https://www.quackyos.com/PoolBuddyWeb/scripts/updateTemp.php', pload={'serielNum': self.serielNum, 'loc':'water','temp':str(waterTemp)})
+
+                self.db.update(url='https://www.quackyos.com/PoolBuddyWeb/scripts/updateTemp.php', pload={'serielNum': self.serielNum, 'loc':'outside','temp':str(weather["outside"])})
+
+                # GET MAX TEMP AND SET TEXT BOX
+                self.signal_to_emit.emit('maxTempTxtBox', str(self.db.get(index=3,serielNum=self.serielNum)))
+                self.signal_to_emit.emit('poolCoverStatusLabel', str(self.db.get(index=2,serielNum=self.serielNum)))
+
+                QtTest.QTest.qWait(10000)
+        except Exception as e:
+            print(e)
+            pass
+
 class PoolbuddyOSui(QMainWindow):
     # Signal for checking water/outside temp from CheckTempsThreaded
     tempThreadSig = pyqtSignal(str,str)
@@ -27,7 +94,7 @@ class PoolbuddyOSui(QMainWindow):
         self.serielNum = str(self.serielNumConfig.getConfig()["deviceInfo"][0]["serielNum"])
         self.owmAPIkey = str(self.settingsConfig.getConfig()["owmApiKey"])
         # Start CheckTempsThreaded
-        self.tempsThreaded = SensorAndWeatherThreaded(dbLogin=dbLogin,signal_to_emit=self.tempThreadSig)
+        self.tempsThreaded = SensorAndWeatherThread(signal_to_emit=self.tempThreadSig,dbLogin=dbLogin,serielNum=self.serielNum)
         self.tempsThread = QThread(self)
         self.tempsThreaded.moveToThread(self.tempsThread)
         self.tempsThread.start()
@@ -37,7 +104,7 @@ class PoolbuddyOSui(QMainWindow):
         self.dateTimeUpdate.moveToThread(self.dateTimeThread)
         self.dateTimeThread.start()
         # Start Hardware Thread
-        self.hardwareUpdate = HardwareDriverThreaded(dbLogin=dbLogin,signal_to_emit=self.hardwareThreadSig)
+        self.hardwareUpdate = HardwareDriverThread(self.hardwareThreadSig,dbLogin=dbLogin, serielNum=self.serielNum)
         self.hardwareThread = QThread(self)
         self.hardwareUpdate.moveToThread(self.hardwareThread)
         self.hardwareThread.start()
@@ -55,6 +122,14 @@ class PoolbuddyOSui(QMainWindow):
     @pyqtSlot(str,str)
     def updateGUI(self, label, text):
         getattr(self,label).setText(text)
+
+    @pyqtSlot()
+    def executeHardwareDriverThread(self):
+        while self.running:
+            try:
+                self.switch(dbLogin=self.dbLogin, serielNum=self.serielNum, resetSwitchPin=self.resetSwitchPin, resetLEDPin=self.resetLEDPin)
+            except Exception as e:
+                print('Hardware Error: ' + str(e))
 
     def startStop(self):
         # Set threads running state oppisite of button state aka off
