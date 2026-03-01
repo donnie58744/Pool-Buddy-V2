@@ -1,6 +1,6 @@
 # <img src="img/icon.png" alt="icon" height="100" /> Poolbuddy V2
 
-*A Python app that runs on Raspberry Pi, monitoring pool temperature, outside temperature and other weather data.*
+*A Python library that runs on Raspberry Pi, monitoring pool temperature, outside temperature and other weather data.*
 
 <img src="img/main.png" alt="ImageOfApp" height="400" />
 
@@ -65,9 +65,19 @@
 
     <img src="img/settings.png" alt="settings" height="400"/>
 
+### Install
+
+- `pip install pool-buddy` *Library Install For Building YOUR apps on!*
+
+    ```python
+    import pool_buddy
+    ```
+
+- `pip install pool-buddy[qt]` *PyQt5 GUI install*
+
 ### Run
 
-- `python3 main.py`
+- `pool-buddy-qt` *PyQt 5 GUI*
 
 ### Usage
 
