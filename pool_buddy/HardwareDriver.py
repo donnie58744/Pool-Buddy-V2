@@ -1,6 +1,4 @@
-from pool_buddy import DEFAULT
 from pool_buddy.CustomTerminal import PrintColor
-from pool_buddy import ConfigDriver
 from time import sleep
 
 try:
@@ -11,19 +9,18 @@ try:
 except ImportError as e:
     print(e)
 class HardwareDriver():
-    def __init__(self):
-        self.settingsConfig=ConfigDriver(jsonFile=DEFAULT.configFilePath)
-        self.resetSwitchPin = self.settingsConfig.getConfig()["ResetSwitchPin"]
-        self.resetLEDPin = self.settingsConfig.getConfig()["ResetLEDPin"]
+    def __init__(self, reset_switch_pin, reset_led_pin):
+        self.reset_switch_pin = reset_switch_pin
+        self.reset_led_pin = reset_led_pin
 
     def switch(self):
         try:
-            button = GPIO.input(self.resetSwitchPin)
+            button = GPIO.input(self.reset_switch_pin)
 
             if button == False:
-                resetLED = GPIO.output(self.resetLEDPin, GPIO.HIGH)
+                resetLED = GPIO.output(self.reset_led_pin, GPIO.HIGH)
                 sleep(3)
-                resetLED = GPIO.output(self.resetLEDPin, GPIO.LOW)
+                resetLED = GPIO.output(self.reset_led_pin, GPIO.LOW)
                 return True
             return False
         except Exception as e:

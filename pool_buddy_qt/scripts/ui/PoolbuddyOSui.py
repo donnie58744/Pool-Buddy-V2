@@ -1,11 +1,12 @@
 import datetime
-from pool_buddy import ConfigDriver
+from pool_buddy_qt import DEFAULT
+from pool_buddy_qt import ConfigDriver
 from pool_buddy import SensorAndWeather
 from pool_buddy import HardwareDriver
-from scripts.Web import dbCredentials,dbConnector
-from scripts.ui.guiFunctions import guiFunctions
-from scripts.ui.SettingsUI import SettingsUI
-from scripts.Web import *
+from pool_buddy_qt.scripts.Web import dbCredentials,dbConnector
+from pool_buddy_qt.scripts.ui.guiFunctions import guiFunctions
+from pool_buddy_qt.scripts.ui.SettingsUI import SettingsUI
+from pool_buddy_qt.scripts.Web import *
 
 from PyQt5 import uic
 from PyQt5.QtCore import QThread, pyqtSlot, pyqtSignal
@@ -40,7 +41,8 @@ class HardwareDriverThread(QObject):
         super().__init__(parent)
         self.signal_to_emit = signal_to_emit
         self.running = True
-        self.hardware_driver = HardwareDriver()
+        config = ConfigDriver(jsonFile=DEFAULT.configFilePath).getConfig()
+        self.hardware_driver = HardwareDriver(reset_switch_pin=config["ResetSwitchPin"],reset_led_pin=config["ResetLEDPin"])
         self.db = dbConnector(login=dbLogin)
         self.serielNum = serielNum
 
@@ -57,7 +59,8 @@ class SensorAndWeatherThread(QObject):
         self.dbLogin = dbLogin
         self.db = dbConnector(dbLogin)
         self.serielNum = serielNum
-        self.sensor_weather = SensorAndWeather()
+        config = ConfigDriver(jsonFile=DEFAULT.configFilePath).getConfig()
+        self.sensor_weather = SensorAndWeather(owm_api_key=config["owmApiKey"], owm_location=config["owmLocation"], temp_unit=0, water_sensor_seriel=config["WaterSensorSeriel"])
         super().__init__(parent)
         self.signal_to_emit = signal_to_emit
         self.running = True
@@ -110,8 +113,8 @@ class PoolbuddyOSui(QMainWindow):
         self.w = None  # No external window yet.
         uic.loadUi(self.dir_path+'/ui/PoolBuddyV2.ui', self)
         # Setup vars
-        self.serielNumConfig = ConfigDriver(jsonFile="/serielNum.json")
-        self.settingsConfig = ConfigDriver(jsonFile="/config.json")
+        self.serielNumConfig = ConfigDriver(jsonFile=DEFAULT.serielNumFilePath)
+        self.settingsConfig = ConfigDriver(jsonFile=DEFAULT.configFilePath)
         self.serielNum = str(self.serielNumConfig.getConfig()["deviceInfo"][0]["serielNum"])
         self.owmAPIkey = str(self.settingsConfig.getConfig()["owmApiKey"])
         # Start CheckTempsThreaded

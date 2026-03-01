@@ -1,13 +1,10 @@
-from pool_buddy import DEFAULT
-from pool_buddy import ConfigDriver
 from pool_buddy.CustomTerminal import PrintColor
 import glob
 class WaterProbeDriver():
-    def __init__(self):
+    def __init__(self, water_sensor_seriel):
         try:
-            settingsConfig = ConfigDriver(jsonFile=DEFAULT.configFilePath)
             base_dir = '/sys/bus/w1/devices/'
-            self.device_path = glob.glob(base_dir + settingsConfig.getConfig()["WaterSensorLocation"])[0] #get file path of sensor
+            self.device_path = glob.glob(base_dir + water_sensor_seriel)[0] #get file path of sensor
         except IndexError:
             PrintColor.red('Cant Find Water Probe')
             self.device_path = ''

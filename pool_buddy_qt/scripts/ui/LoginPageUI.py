@@ -1,8 +1,8 @@
-from pool_buddy import DEFAULT
-from scripts.Web import dbCredentials,dbConnector
-from pool_buddy import ConfigDriver
-from scripts.ui.guiFunctions import guiFunctions
-from scripts.ui.PoolbuddyOSui import PoolbuddyOSui
+from pool_buddy_qt import DEFAULT
+from pool_buddy_qt import ConfigDriver
+from pool_buddy_qt.scripts.Web import dbCredentials,dbConnector
+from pool_buddy_qt.scripts.ui.guiFunctions import guiFunctions
+from pool_buddy_qt.scripts.ui.PoolbuddyOSui import PoolbuddyOSui
 from PyQt5.QtWidgets import QMainWindow
 from PyQt5 import uic
 

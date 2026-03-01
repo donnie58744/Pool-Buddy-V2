@@ -1,9 +1,11 @@
-from pool_buddy import DEFAULT
-from pool_buddy import ConfigDriver
-from scripts.Web import dbCredentials
+from pool_buddy_qt import DEFAULT
+from pool_buddy_qt import ConfigDriver
+from pool_buddy_qt.scripts.Web import dbCredentials
 from PyQt5 import uic
 from PyQt5 import QtTest
 from PyQt5.QtWidgets import QMainWindow
+
+
 class SettingsUI(QMainWindow):
     def __init__(self, dbLogin:dbCredentials, dir_path, parent=None):
         super(SettingsUI, self).__init__(parent)
@@ -93,7 +95,7 @@ class SettingsUI(QMainWindow):
 
     def restoreSettings(self):
         # User Settings
-        WaterSensorLocation = self.settingsConfig.getConfig()["WaterSensorLocation"]
+        WaterSensorSeriel = self.settingsConfig.getConfig()["WaterSensorSeriel"]
         ResetSwitchPin = str(self.settingsConfig.getConfig()["ResetSwitchPin"])
         ResetLEDPin = str(self.settingsConfig.getConfig()["ResetLEDPin"])
         EmailNotify = bool(self.settingsConfig.getConfig()["emailNotify"])
@@ -107,7 +109,7 @@ class SettingsUI(QMainWindow):
         # Device Page
         self.resetSwitchPinLineEdit.setText(ResetSwitchPin)
         self.resetLEDLineEdit.setText(ResetLEDPin)
-        self.waterSensorLocationLineEdit.setText(WaterSensorLocation)
+        self.waterSensorLocationLineEdit.setText(WaterSensorSeriel)
         self.emailNotifyCheckBox.setChecked(EmailNotify)
         self.tempUnitComboBox.setCurrentIndex(tempUnit)
         self.owmLocationLineEdit.setText(omwLocation)
