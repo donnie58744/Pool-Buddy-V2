@@ -7,12 +7,16 @@ from pool_buddy_qt.scripts.Web import dbCredentials,dbConnector
 from pool_buddy_qt.scripts.ui.guiFunctions import guiFunctions
 from pool_buddy_qt.scripts.ui.SettingsUI import SettingsUI
 from pool_buddy_qt.scripts.Web import *
+from pkg_resources import get_distribution
 
 from PyQt5 import uic
 from PyQt5.QtCore import QThread, pyqtSlot, pyqtSignal
 from PyQt5.QtWidgets import QMainWindow
 from PyQt5.QtCore import pyqtSlot, QObject
 from PyQt5 import QtTest
+
+version = get_distribution('pool-buddy').version
+
 
 class GetDateTimeThread(QObject):
     def __init__(self, signal_to_emit, parent=None):
@@ -112,6 +116,7 @@ class PoolbuddyOSui(QMainWindow):
         self.dir_path = root_dir
         self.w = None  # No external window yet.
         uic.loadUi(self.dir_path+'/ui/PoolBuddyV2.ui', self)
+        self.versionLabel.setText(version)
         # Setup vars
         self.serielNumConfig = ConfigDriver(jsonFile=DEFAULT.serielNumFilePath)
         self.settingsConfig = ConfigDriver(jsonFile=DEFAULT.configFilePath)

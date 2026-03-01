@@ -4,6 +4,9 @@ from pool_buddy_qt.scripts.Web import dbCredentials
 from PyQt5 import uic
 from PyQt5 import QtTest
 from PyQt5.QtWidgets import QMainWindow
+from pkg_resources import get_distribution
+
+version = get_distribution('pool-buddy').version
 
 
 class SettingsUI(QMainWindow):
@@ -22,6 +25,7 @@ class SettingsUI(QMainWindow):
         self.changePage(self.aboutBtn, 0)
         self.obscureSecrets(self.secretLineEdits)
         self.savedSettingsLabel.setText("")
+        self.versionLabel.setText(version)
         # Sidebar Btns
         self.aboutBtn.clicked.connect(lambda: self.changePage(self.aboutBtn, 0))
         self.accountBtn.clicked.connect(lambda: self.changePage(self.accountBtn, 1))

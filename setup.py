@@ -3,7 +3,7 @@ from setuptools import setup, find_packages
 
 setup(
     name="pool-buddy",
-    version="0.0.1a",
+    version="0.0.1a0",
     author="Donovan Whysong",
     author_email="donnie58744@gmail.com",
     description="A library for monitoring a variety of Pool releated information. Including water temp, outside temp, humidity etc...",
