@@ -1,7 +1,7 @@
 import sys
 import os
 from pool_buddy_qt import DEFAULT
-from pool_buddy_qt.scripts.ui.LoginPageUI import *
+from pool_buddy_qt.ui_scripts import *
 from pool_buddy.CustomTerminal import PrintColor
 
 import platform, subprocess

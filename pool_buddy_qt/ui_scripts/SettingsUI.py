@@ -1,12 +1,12 @@
 from pool_buddy_qt import DEFAULT
 from pool_buddy_qt import ConfigDriver
-from pool_buddy_qt.scripts.Web import dbCredentials
+from pool_buddy_qt.Web import dbCredentials
 from PyQt5 import uic
 from PyQt5 import QtTest
 from PyQt5.QtWidgets import QMainWindow
-from pkg_resources import get_distribution
+from importlib.metadata import version
 
-version = get_distribution('pool-buddy').version
+version = version('pool-buddy')
 
 
 class SettingsUI(QMainWindow):

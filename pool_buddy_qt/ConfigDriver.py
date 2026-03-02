@@ -1,5 +1,5 @@
 from pool_buddy_qt import DEFAULT
-from pool_buddy_qt.scripts import Web
+from pool_buddy_qt import Web
 from pool_buddy.CustomTerminal import PrintColor
 import json, random, string, os
 

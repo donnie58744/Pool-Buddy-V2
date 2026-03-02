@@ -3,3 +3,4 @@
 /pool_buddy_qt/serielNum.json
 /pool_buddy_qt/config.json
 **.DS_STORE
+**/dist/

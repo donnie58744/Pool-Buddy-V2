@@ -3,11 +3,11 @@ from pool_buddy_qt import DEFAULT
 from pool_buddy_qt import ConfigDriver
 from pool_buddy import SensorAndWeather
 from pool_buddy import HardwareDriver
-from pool_buddy_qt.scripts.Web import dbCredentials,dbConnector
-from pool_buddy_qt.scripts.ui.guiFunctions import guiFunctions
-from pool_buddy_qt.scripts.ui.SettingsUI import SettingsUI
-from pool_buddy_qt.scripts.Web import *
-from pkg_resources import get_distribution
+from pool_buddy_qt.Web import dbCredentials,dbConnector
+from pool_buddy_qt.ui_scripts.guiFunctions import guiFunctions
+from pool_buddy_qt.ui_scripts.SettingsUI import SettingsUI
+from pool_buddy_qt.Web import *
+from importlib.metadata import version
 
 from PyQt5 import uic
 from PyQt5.QtCore import QThread, pyqtSlot, pyqtSignal
@@ -15,7 +15,7 @@ from PyQt5.QtWidgets import QMainWindow
 from PyQt5.QtCore import pyqtSlot, QObject
 from PyQt5 import QtTest
 
-version = get_distribution('pool-buddy').version
+version = version('pool-buddy')
 
 
 class GetDateTimeThread(QObject):
