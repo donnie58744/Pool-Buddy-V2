@@ -1,10 +1,8 @@
-# Download Libs
-import os,sys
-os.system("pip install -r requirements.txt")
-# Import custom scripts
-from scripts import DEFAULT
-from scripts.ui.LoginPageUI import *
-from scripts.CustomTerminal import PrintColor
+import sys
+import os
+from pool_buddy_qt import DEFAULT
+from pool_buddy_qt.ui_scripts import *
+from pool_buddy.CustomTerminal import PrintColor
 
 import platform, subprocess
 machineOs = platform.system()
@@ -19,7 +17,7 @@ if (machineOs == 'Linux'):
         PrintColor.red(str(e))
 from PyQt5.QtWidgets import QApplication
 # Need this for pyQT resources
-import resources
+from pool_buddy_qt import resources
 
 dir_path = os.path.dirname(os.path.realpath(__file__))
 DEFAULT.root_dir=dir_path

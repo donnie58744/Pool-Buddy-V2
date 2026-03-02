@@ -1,4 +1,4 @@
-from scripts.CustomTerminal import PrintColor
+from pool_buddy.CustomTerminal import PrintColor
 import requests
 
 class dbCredentials:

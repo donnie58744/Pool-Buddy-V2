@@ -124,7 +124,7 @@ background-color:#808080;
 }</string>
         </property>
         <property name="currentIndex">
-         <number>2</number>
+         <number>0</number>
         </property>
         <widget class="QWidget" name="AboutPage">
          <layout class="QGridLayout" name="gridLayout_22">
@@ -164,7 +164,7 @@ background-color:#808080;
                <item alignment="Qt::AlignLeft">
                 <widget class="QLabel" name="versionLabel">
                  <property name="text">
-                  <string>0.0.1 Alpha</string>
+                  <string/>
                  </property>
                  <property name="class" stdset="0">
                   <string>infoLabel</string>
@@ -390,7 +390,7 @@ color: black;
                   <x>0</x>
                   <y>0</y>
                   <width>352</width>
-                  <height>173</height>
+                  <height>168</height>
                  </rect>
                 </property>
                 <property name="class" stdset="0">
@@ -626,7 +626,7 @@ color: black;
                   <x>0</x>
                   <y>0</y>
                   <width>327</width>
-                  <height>565</height>
+                  <height>575</height>
                  </rect>
                 </property>
                 <property name="class" stdset="0">
@@ -2006,7 +2006,7 @@ color: black;
           <rect>
            <x>0</x>
            <y>0</y>
-           <width>170</width>
+           <width>168</width>
            <height>582</height>
           </rect>
          </property>
