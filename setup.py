@@ -35,9 +35,10 @@ setup(
         ],
         "dev-qt" : [
             "PyQt5>=5.15",
+            "setuptools>=70.1.0",
         ],
         "dev" : [
-            
+            "setuptools>=70.1.0",
         ]
     },
     
