@@ -1,8 +1,8 @@
-# <img src="img/icon.png" alt="icon" height="100" /> Poolbuddy V2
+# <img src="README/icon.png" alt="icon" height="100" /> Poolbuddy V2
 
 *A Python library that runs on Raspberry Pi, monitoring pool temperature, outside temperature and other weather data.*
 
-<img src="img/main.png" alt="ImageOfApp" height="400" />
+<img src="README/main.png" alt="ImageOfApp" height="400" />
 
 -----
 
@@ -63,7 +63,7 @@
 
     - Click the gear gog on from the main screen
 
-    <img src="img/settings.png" alt="settings" height="400"/>
+    <img src="README/settings.png" alt="settings" height="400"/>
 
 ### Install
 
